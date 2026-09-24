@@ -15,13 +15,19 @@ BRIDGE_USER_AUTH="disabled"
 BRIDGE_K8S_MODE="off-cluster"
 BRIDGE_K8S_AUTH="bearer-token"
 BRIDGE_K8S_MODE_OFF_CLUSTER_SKIP_VERIFY_TLS=true
-BRIDGE_K8S_MODE_OFF_CLUSTER_ENDPOINT=$(oc whoami --show-server)
+if ! BRIDGE_K8S_MODE_OFF_CLUSTER_ENDPOINT=$(oc whoami --show-server) || [ -z "$BRIDGE_K8S_MODE_OFF_CLUSTER_ENDPOINT" ]; then
+    echo "Error: Could not determine the cluster API server. Run 'oc login' or check KUBECONFIG." >&2
+    exit 1
+fi
 # The monitoring operator is not always installed (e.g. for local OpenShift). Tolerate missing config maps.
 set +e
 BRIDGE_K8S_MODE_OFF_CLUSTER_THANOS=$(oc -n openshift-config-managed get configmap monitoring-shared-config -o jsonpath='{.data.thanosPublicURL}' 2>/dev/null)
 BRIDGE_K8S_MODE_OFF_CLUSTER_ALERTMANAGER=$(oc -n openshift-config-managed get configmap monitoring-shared-config -o jsonpath='{.data.alertmanagerPublicURL}' 2>/dev/null)
 set -e
-BRIDGE_K8S_AUTH_BEARER_TOKEN=$(oc whoami --show-token 2>/dev/null)
+if ! BRIDGE_K8S_AUTH_BEARER_TOKEN=$(oc whoami --show-token) || [ -z "$BRIDGE_K8S_AUTH_BEARER_TOKEN" ]; then
+    echo "Error: Could not obtain a cluster bearer token. Run 'oc login' with token-based credentials or check KUBECONFIG." >&2
+    exit 1
+fi
 BRIDGE_USER_SETTINGS_LOCATION="localstorage"
 BRIDGE_I18N_NAMESPACES="plugin__${PLUGIN_NAME}"
 
@@ -53,8 +59,10 @@ echo "Container Engine: $CONTAINER_ENGINE"
 
 if [ "$CONTAINER_ENGINE" = "container" ]; then
     # Apple's container runtime doesn't resolve host.containers.internal; use the host's bridge IP.
-    HOST_IP=$(ifconfig bridge100 2>/dev/null | awk '/inet / {print $2}')
-    HOST_IP=${HOST_IP:-192.168.65.1}
+    if ! HOST_IP=$(ifconfig bridge100 2>/dev/null | awk '/inet / {print $2}') || [ -z "$HOST_IP" ]; then
+        HOST_IP=192.168.65.1
+        echo "Warning: Could not determine an IPv4 address for bridge100; using $HOST_IP for the plugin host." >&2
+    fi
     BRIDGE_PLUGINS="${PLUGIN_NAME}=http://${HOST_IP}:9001"
     container run --rm --platform $CONSOLE_IMAGE_PLATFORM -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
 elif [ "$CONTAINER_ENGINE" = "podman" ]; then

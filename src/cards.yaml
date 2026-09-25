@@ -55,6 +55,12 @@
   body: Manage virtual machine lifecycle by starting, monitoring, pausing, and stopping VMs.
   quickStartId: vm-lifecycle-states
 
+- id: cloning-vms
+  kind: quickstart
+  title: Cloning Virtual Machines
+  body: Start a guided walkthrough for cloning virtual machines in OpenShift Virtualization.
+  quickStartId: partner-labs-cloning-vms
+
 - id: pipeline
   kind: pipeline
   title: Tekton Pipeline

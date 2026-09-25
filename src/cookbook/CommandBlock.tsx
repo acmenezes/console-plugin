@@ -1,43 +1,18 @@
-import {
-  DocumentTitle,
-  k8sCreate,
-  k8sGet,
-  k8sListItems,
-  useActiveNamespace,
-} from '@openshift-console/dynamic-plugin-sdk';
+import { k8sCreate, k8sGet, k8sListItems } from '@openshift-console/dynamic-plugin-sdk';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
-  Breadcrumb,
-  BreadcrumbItem,
   Button,
-  ClipboardCopy,
+  ClipboardCopyButton,
   CodeBlock,
+  CodeBlockAction,
   CodeBlockCode,
-  Content,
-  PageSection,
-  Split,
-  SplitItem,
-  Title,
+  ExpandableSection,
+  Label,
+  Tooltip,
 } from '@patternfly/react-core';
-import { CheckCircleIcon, PlayIcon, TimesCircleIcon } from '@patternfly/react-icons';
 import { useCallback, useState, type FC } from 'react';
-import { Link, useParams } from 'react-router';
-import * as cardsData from '../cards.yaml';
-import type { CookbookSection } from '../types/cookbook';
-
-import './cookbook.css';
-
-interface DemoCard {
-  id: string;
-  title: string;
-  body: string;
-  cookbook: CookbookSection[];
-}
-
-const cards = (
-  Array.isArray(cardsData) ? cardsData : (cardsData as { default: DemoCard[] }).default
-) as DemoCard[];
+import { MANAGED_BY, MANAGED_BY_VALUE } from '../data/labels';
+import { ALL_NAMESPACES_KEY } from '../data/namespace';
 
 const DataSourceModel = {
   apiVersion: 'v1beta1',
@@ -84,27 +59,15 @@ const ProjectRequestModel = {
 };
 
 type CommandStatus = 'idle' | 'running' | 'success' | 'error';
+let nextCopyId = 0;
 
-interface CommandResult {
+export interface CommandResult {
   status: CommandStatus;
   message?: string;
   detail?: string;
 }
 
-const StatusIcon: FC<{ status: CommandStatus }> = ({ status }) => {
-  switch (status) {
-    case 'running':
-      return <span className="partner-labs-console-plugin__spinner" />;
-    case 'success':
-      return <CheckCircleIcon className="partner-labs-console-plugin__status-success" />;
-    case 'error':
-      return <TimesCircleIcon className="partner-labs-console-plugin__status-error" />;
-    default:
-      return null;
-  }
-};
-
-const CommandBlock: FC<{
+export const CommandBlock: FC<{
   command: string;
   action?: string;
   namespace: string;
@@ -112,8 +75,16 @@ const CommandBlock: FC<{
   result: CommandResult;
 }> = ({ command, action, namespace, onResult, result }) => {
   const { t } = useTranslation('plugin__partner-labs-console-plugin');
-
+  const [copyId] = useState(() => `partner-labs-copy-${(++nextCopyId).toString()}`);
+  const [outputExpanded, setOutputExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const placeholders = Array.from(command.matchAll(/<([^<>]+)>/g), (match) => match[1]);
+  const needsProject =
+    (action === 'create-vm' || action === 'create-custom-template') &&
+    namespace === ALL_NAMESPACES_KEY;
   const handleRun = useCallback(async () => {
+    if (needsProject) return;
+    setOutputExpanded(true);
     onResult({ status: 'running' });
     try {
       switch (action) {
@@ -126,11 +97,9 @@ const CommandBlock: FC<{
           const rows = items.map((ds) => {
             const name = (ds.metadata?.name ?? '').padEnd(30);
             const conditions =
-              ((ds as Record<string, unknown>).status as Record<string, unknown[]>)?.conditions ??
-              [];
-            const ready = (conditions as { type: string; status: string }[]).find(
-              (c) => c.type === 'Ready',
-            );
+              (ds as { status?: { conditions?: { type: string; status: string }[] } }).status
+                ?.conditions ?? [];
+            const ready = conditions.find((c) => c.type === 'Ready');
             const sourceStatus = ready?.status === 'True' ? 'Ready' : 'Not Ready';
             const created = ds.metadata?.creationTimestamp
               ? new Date(ds.metadata.creationTimestamp).toLocaleDateString()
@@ -152,7 +121,7 @@ const CommandBlock: FC<{
             name: 'fedora-server-small',
             ns: 'openshift',
           });
-          const yaml = JSON.parse(JSON.stringify(template));
+          const yaml = JSON.parse(JSON.stringify(template)) as typeof template;
           delete yaml.metadata?.managedFields;
           onResult({
             status: 'success',
@@ -175,7 +144,7 @@ const CommandBlock: FC<{
                 name: vmName,
                 namespace,
                 labels: {
-                  'app.kubernetes.io/managed-by': 'partner-labs-console-plugin',
+                  [MANAGED_BY]: MANAGED_BY_VALUE,
                 },
               },
               spec: {
@@ -240,8 +209,7 @@ const CommandBlock: FC<{
           const header = 'NAME                                DESCRIPTION';
           const rows = vmTemplates.map((tpl) => {
             const name = (tpl.metadata?.name ?? '').padEnd(36);
-            const desc =
-              ((tpl.metadata?.annotations ?? {}) as Record<string, string>).description ?? '';
+            const desc = tpl.metadata?.annotations?.description ?? '';
             const truncated = desc.length > 80 ? `${desc.slice(0, 77)}...` : desc;
             return `${name} ${truncated}`;
           });
@@ -260,7 +228,7 @@ const CommandBlock: FC<{
             name: 'rhel9-server-medium',
             ns: 'openshift',
           });
-          const cleaned = JSON.parse(JSON.stringify(template));
+          const cleaned = JSON.parse(JSON.stringify(template)) as typeof template;
           delete cleaned.metadata?.managedFields;
           onResult({
             status: 'success',
@@ -301,7 +269,7 @@ const CommandBlock: FC<{
                 namespace: 'template-example',
                 labels: {
                   app: vmName,
-                  'app.kubernetes.io/managed-by': 'partner-labs-console-plugin',
+                  [MANAGED_BY]: MANAGED_BY_VALUE,
                   'vm.kubevirt.io/template': 'rhel9-server-medium',
                 },
               },
@@ -377,8 +345,8 @@ const CommandBlock: FC<{
           const rows = vms.map((vm) => {
             const name = (vm.metadata?.name ?? '').padEnd(34);
             const status =
-              (((vm as Record<string, unknown>).status as Record<string, unknown>)
-                ?.printableStatus as string) ?? 'Unknown';
+              (vm as { status?: { printableStatus?: string } }).status?.printableStatus ??
+              'Unknown';
             const created = vm.metadata?.creationTimestamp
               ? new Date(vm.metadata.creationTimestamp).toLocaleString()
               : '';
@@ -528,8 +496,8 @@ const CommandBlock: FC<{
           const rows = vms.map((vm) => {
             const name = (vm.metadata?.name ?? '').padEnd(34);
             const status =
-              (((vm as Record<string, unknown>).status as Record<string, unknown>)
-                ?.printableStatus as string) ?? 'Unknown';
+              (vm as { status?: { printableStatus?: string } }).status?.printableStatus ??
+              'Unknown';
             const created = vm.metadata?.creationTimestamp
               ? new Date(vm.metadata.creationTimestamp).toLocaleString()
               : '';
@@ -552,152 +520,99 @@ const CommandBlock: FC<{
       const msg = e instanceof Error ? e.message : String(e);
       onResult({ status: 'error', message: msg });
     }
-  }, [action, namespace, onResult, t]);
+  }, [action, namespace, needsProject, onResult, t]);
+
+  const runButton = (
+    <Button
+      variant="link"
+      onClick={() => void handleRun()}
+      isDisabled={result.status === 'running' || needsProject}
+      isLoading={result.status === 'running'}
+      data-test="run-command"
+    >
+      {t('Run')}
+    </Button>
+  );
 
   return (
     <div className="partner-labs-console-plugin__command-block">
-      <Split hasGutter>
-        <SplitItem isFilled>
-          <ClipboardCopy isReadOnly variant="expansion">
-            {command}
-          </ClipboardCopy>
-        </SplitItem>
-        {action && (
-          <SplitItem>
-            <Button
-              variant="secondary"
-              icon={<PlayIcon />}
-              onClick={handleRun}
-              isDisabled={result.status === 'running'}
-              isLoading={result.status === 'running'}
-            >
-              {t('Run')}
-            </Button>
-          </SplitItem>
-        )}
-      </Split>
+      <CodeBlock
+        actions={
+          <>
+            <CodeBlockAction>
+              {/* PF6 still requires the deprecated textId for associating copied content. */}
+              {/* eslint-disable @typescript-eslint/no-deprecated */}
+              <ClipboardCopyButton
+                id={copyId}
+                textId={`${copyId}-text`}
+                exitDelay={2000}
+                onTooltipHidden={() => {
+                  setCopied(false);
+                }}
+                onClick={() => {
+                  void navigator.clipboard.writeText(command).then(
+                    () => {
+                      setCopied(true);
+                    },
+                    () => {
+                      setCopied(false);
+                    },
+                  );
+                }}
+                data-test="copy-command"
+              >
+                {copied ? t('Copied') : t('Copy command')}
+              </ClipboardCopyButton>
+              {/* eslint-enable @typescript-eslint/no-deprecated */}
+            </CodeBlockAction>
+            {action && placeholders.length === 0 && (
+              <CodeBlockAction>
+                {needsProject ? (
+                  <Tooltip content={t('Select a project first')}>
+                    <span>{runButton}</span>
+                  </Tooltip>
+                ) : (
+                  runButton
+                )}
+              </CodeBlockAction>
+            )}
+          </>
+        }
+      >
+        <CodeBlockCode id={`${copyId}-text`}>{command}</CodeBlockCode>
+      </CodeBlock>
+      {needsProject && <Label isCompact>{t('Select a project first')}</Label>}
+      {placeholders.length > 0 && (
+        <Tooltip content={t('Replace placeholders: {{names}}', { names: placeholders.join(', ') })}>
+          <Label isCompact>{t('Edit before running')}</Label>
+        </Tooltip>
+      )}
       {result.status !== 'idle' && result.message && (
-        <Alert
-          variant={
+        <Label
+          status={
             result.status === 'error' ? 'danger' : result.status === 'success' ? 'success' : 'info'
           }
-          isInline
-          isPlain
-          title={result.message}
           className="partner-labs-console-plugin__command-result"
         >
-          <StatusIcon status={result.status} />
-        </Alert>
+          {result.message}
+        </Label>
       )}
       {result.detail && (
-        <div className="partner-labs-console-plugin__command-detail">
-          <CodeBlock>
-            <CodeBlockCode>{result.detail}</CodeBlockCode>
-          </CodeBlock>
-        </div>
+        <ExpandableSection
+          isExpanded={outputExpanded}
+          onToggle={(_event, expanded) => {
+            setOutputExpanded(expanded);
+          }}
+          toggleText={t('Output')}
+          data-test="command-output"
+        >
+          <div className="partner-labs-console-plugin__command-detail">
+            <CodeBlock>
+              <CodeBlockCode>{result.detail}</CodeBlockCode>
+            </CodeBlock>
+          </div>
+        </ExpandableSection>
       )}
     </div>
   );
 };
-
-const CookbookPage: FC = () => {
-  const { t } = useTranslation('plugin__partner-labs-console-plugin');
-  const { demoId } = useParams();
-  const [activeNamespace] = useActiveNamespace();
-  const [results, setResults] = useState<Record<string, CommandResult>>({});
-
-  const card = cards.find((c) => c.id === demoId);
-
-  const setCommandResult = useCallback((commandId: string) => {
-    return (result: CommandResult) => {
-      setResults((prev) => ({ ...prev, [commandId]: result }));
-    };
-  }, []);
-
-  if (!card) {
-    return (
-      <PageSection>
-        <Alert variant="warning" title={t('Demo not found')} />
-      </PageSection>
-    );
-  }
-
-  return (
-    <>
-      <DocumentTitle>{card.title}</DocumentTitle>
-      <PageSection>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <Link to="/partner-labs-demos">{t('Partner Labs Demos')}</Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem isActive>{card.title}</BreadcrumbItem>
-        </Breadcrumb>
-      </PageSection>
-      <PageSection>
-        <Title headingLevel="h1" size="2xl" className="partner-labs-console-plugin__cookbook-title">
-          {card.title}
-        </Title>
-        <Content component="p" className="partner-labs-console-plugin__namespace-info">
-          {t('Active namespace: {{ns}}', { ns: activeNamespace })}
-        </Content>
-
-        {card.cookbook.map((section, sectionIdx) => (
-          <div key={sectionIdx} className="partner-labs-console-plugin__cookbook-section">
-            <Title
-              headingLevel={section.level === 2 ? 'h2' : 'h3'}
-              size={section.level === 2 ? 'xl' : 'lg'}
-            >
-              {t(section.heading)}
-            </Title>
-
-            {section.content.map((block, blockIdx) => {
-              const key = `${sectionIdx}-${blockIdx}`;
-              if (block.type === 'text') {
-                return (
-                  <Content component="p" key={key}>
-                    {block.value}
-                  </Content>
-                );
-              }
-              if (block.type === 'steps') {
-                return (
-                  <Content component="ol" key={key}>
-                    {block.items.map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </Content>
-                );
-              }
-              if (block.type === 'command') {
-                return (
-                  <CommandBlock
-                    key={key}
-                    command={block.value}
-                    action={block.action}
-                    namespace={activeNamespace}
-                    result={results[key] ?? { status: 'idle' }}
-                    onResult={setCommandResult(key)}
-                  />
-                );
-              }
-              if (block.type === 'note') {
-                return (
-                  <Alert
-                    key={key}
-                    variant={block.variant === 'warning' ? 'warning' : 'info'}
-                    isInline
-                    title={block.value}
-                    className="partner-labs-console-plugin__cookbook-note"
-                  />
-                );
-              }
-              return null;
-            })}
-          </div>
-        ))}
-      </PageSection>
-    </>
-  );
-};
-
-export default CookbookPage;

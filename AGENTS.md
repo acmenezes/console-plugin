@@ -4,22 +4,17 @@ This document provides context and guidelines for AI coding assistants working o
 
 ## Project Overview
 
-This is a **template repository** for creating OpenShift Console dynamic plugins. It's meant to be used via GitHub's "Use this template" feature, NOT forked. The template provides a minimal starting point for extending the OpenShift Console UI with custom pages and functionality.
-
-> **⚠️ WARNING:**
-> This repository is used by multiple large-scale enterprise web applications. Please proceed with caution when making any changes to this codebase. Changes here can affect downstream projects that depend on this template.
->
-> **Only make changes that should be standard practice for ALL plugins created from this template.** If a change is specific to one plugin use case, it belongs in the instantiated plugin repository, not in this template.
+This repository demonstrates three OpenShift Console card interactions: opening a plugin page, starting a `ConsoleQuickStart`, and creating a Tekton `PipelineRun`. It also retains the VM cookbook cards. It can be used via GitHub's "Use this template" feature.
 
 **Key Technologies:**
-- TypeScript + React 18
+- TypeScript + React 17
 - PatternFly 6 (UI component library)
-- Rspack with Module Federation
+- Webpack with Module Federation
 - react-i18next for internationalization
 - Playwright for e2e testing
 - Helm for deployment
 
-**Compatibility:** Requires OpenShift 4.12+ (uses ConsolePlugin CRD v1 API)
+**Compatibility:** Declares OpenShift Console 4.19+ with the 4.19 plugin SDK and PatternFly 6. Console 4.22 changed shared React, router, and i18n versions; test against each Console release before claiming runtime compatibility.
 
 ## Architecture & Patterns
 
@@ -29,7 +24,7 @@ This plugin uses module federation to load at runtime into the OpenShift Console
 
 - `console-extensions.json`: Declares what the plugin adds to console (routes, nav items, etc.)
 - `package.json` `consolePlugin` section: Plugin metadata and exposed modules mapping
-- `rspack.config.ts`: Configures module federation and build
+- `webpack.config.ts`: Configures module federation and build
 
 **Critical:** Any component referenced in `console-extensions.json` must have a corresponding entry in `package.json` under `consolePlugin.exposedModules`.
 
@@ -53,17 +48,17 @@ Don't disable these rules without understanding they protect against layout brea
 
 ## Internationalization (i18n)
 
-**Namespace Convention:** `plugin__<plugin-name>` (e.g., `plugin__console-plugin-template`)
+**Namespace Convention:** `plugin__<plugin-name>` (here, `plugin__partner-labs-console-plugin`)
 
 ### In React Components:
 ```tsx
-const { t } = useTranslation('plugin__console-plugin-template');
+const { t } = useTranslation('plugin__partner-labs-console-plugin');
 return <h1>{t('Hello, World!')}</h1>;
 ```
 
 ### In console-extensions.json:
 ```json
-"name": "%plugin__console-plugin-template~My Label%"
+"name": "%plugin__partner-labs-console-plugin~My Label%"
 ```
 
 **After adding/changing messages:** Run `yarn i18n` to update locale files in `/locales`
@@ -72,15 +67,16 @@ return <h1>{t('Hello, World!')}</h1>;
 
 ```
 src/
-  components/          # React components
-    ExamplePage.tsx   # Example page component
-    *.css            # Component styles (scoped with plugin prefix)
+  cards.yaml           # Sparse card registry
+  components/          # Card gallery and simple page
+  data/cards.ts        # Typed card loader
+  cookbook/            # Cookbook content, renderer, types, and commands
 console-extensions.json # Plugin extension declarations
 package.json           # Plugin metadata in consolePlugin section
-tsconfig.json          # TypeScript config (strict: false currently)
-rspack.config.ts      # Module federation + build config
+tsconfig.json          # TypeScript config (strict: true)
+webpack.config.ts     # Module federation + build config
 locales/               # i18n translation files
-charts/                # Helm chart for deployment
+charts/                # Helm chart and ConsoleQuickStart resources
 integration-tests/     # Playwright e2e tests
 ```
 
@@ -90,10 +86,10 @@ integration-tests/     # Playwright e2e tests
 1. `yarn install` - install dependencies
 2. `yarn start` - starts dev server on port 9001 with CORS
 3. `yarn start-console` - runs OpenShift console in container (requires cluster login)
-4. Navigate to http://localhost:9000/example
+4. Navigate to http://localhost:9000/partner-labs-demos
 
 ### Code Quality
-- `yarn lint` - runs eslint, prettier, and stylelint (with --fix)
+- `yarn lint` - runs eslint and stylelint (with --fix)
 - Linting is mandatory before commits
 - Follow existing code patterns in the repo
 
@@ -107,7 +103,7 @@ integration-tests/     # Playwright e2e tests
 
 Current config has `strict: true` and enforces:
 - `noUnusedLocals: true`
-- All files should use `.tsx` extension
+- React components use `.tsx`; other TypeScript files use `.ts`
 
 ## Common Development Tasks
 
@@ -159,13 +155,11 @@ docker build -t quay.io/my-repository/my-plugin:latest .
 
 ### Deploying via Helm
 ```bash
-helm upgrade -i my-plugin charts/openshift-console-plugin \
+helm upgrade -i my-plugin charts/partner-labs-console-plugin \
   -n my-namespace \
   --create-namespace \
   --set plugin.image=my-plugin-image-location
 ```
-
-**Note:** OpenShift 4.10 requires `--set plugin.securityContext.enabled=false`
 
 ## Important Constraints & Gotchas
 
@@ -174,8 +168,8 @@ helm upgrade -i my-plugin charts/openshift-console-plugin \
 3. **CSS class prefixes prevent style conflicts** - always prefix with plugin name
 4. **Module federation requires exact module mapping** - `exposedModules` must match `$codeRef` values
 5. **PatternFly CSS variables only** - hex colors break dark mode
-6. **No rspack HMR for extensions** - changes to `console-extensions.json` require restart
-7. **React 18** - matches console's React version
+6. **No webpack HMR for extensions** - changes to `console-extensions.json` require restart
+7. **React 17** - matches Console 4.19 through 4.21
 
 ## Extension Points
 

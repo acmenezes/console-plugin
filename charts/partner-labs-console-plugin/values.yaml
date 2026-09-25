@@ -1,6 +1,6 @@
 ---
 plugin:
-  name: ""
+  name: partner-labs-console-plugin
   description: ""
   image: ""
   imagePullPolicy: IfNotPresent

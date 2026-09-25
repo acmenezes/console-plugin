@@ -4,7 +4,7 @@ kind: ConsoleQuickStart
 metadata:
   name: partner-labs-instancetype-preference
   labels:
-    {{- include "openshift-console-plugin.labels" . | nindent 4 }}
+    {{- include "partner-labs-console-plugin.labels" . | nindent 4 }}
 spec:
   displayName: "VM Instancetypes & Preferences"
   description: "Learn how instancetypes and preferences standardize virtual machine definitions in OpenShift Virtualization."

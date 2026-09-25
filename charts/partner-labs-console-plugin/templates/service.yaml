@@ -3,12 +3,12 @@ kind: Service
 metadata:
   {{- if not .Values.certificateSecretName }}
   annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: {{ template "openshift-console-plugin.certificateSecret" . }}
+    service.alpha.openshift.io/serving-cert-secret-name: {{ template "partner-labs-console-plugin.certificateSecret" . }}
   {{- end }}
-  name: {{ template "openshift-console-plugin.name" . }}
+  name: {{ template "partner-labs-console-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "openshift-console-plugin.labels" . | nindent 4 }}
+    {{- include "partner-labs-console-plugin.labels" . | nindent 4 }}
 spec:
   ports:
     - name: {{ .Values.plugin.port }}-tcp
@@ -16,6 +16,6 @@ spec:
       port: {{ .Values.plugin.port }}
       targetPort: {{ .Values.plugin.port }}
   selector:
-    {{- include "openshift-console-plugin.selectorLabels" . | nindent 4 }}
+    {{- include "partner-labs-console-plugin.selectorLabels" . | nindent 4 }}
   type: ClusterIP
   sessionAffinity: None

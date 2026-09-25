@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "openshift-console-plugin.name" . }}
+  name: {{ template "partner-labs-console-plugin.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "openshift-console-plugin.labels" . | nindent 4 }}
+    {{- include "partner-labs-console-plugin.labels" . | nindent 4 }}
     app.openshift.io/runtime-namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.plugin.replicas }}
   selector:
     matchLabels:
-      {{- include "openshift-console-plugin.selectorLabels" . | nindent 6 }}
+      {{- include "partner-labs-console-plugin.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-            {{- include "openshift-console-plugin.labels" . | nindent 8 }}
+            {{- include "partner-labs-console-plugin.labels" . | nindent 8 }}
     spec:
       {{- with .Values.plugin.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ template "openshift-console-plugin.name" . }}
+        - name: {{ template "partner-labs-console-plugin.name" . }}
           image: {{ required "Plugin image must be specified!" .Values.plugin.image }}
           ports:
             - containerPort: {{ .Values.plugin.port }}
@@ -33,7 +33,7 @@ spec:
           resources:
             {{- toYaml .Values.plugin.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ template "openshift-console-plugin.certificateSecret" . }}
+            - name: {{ template "partner-labs-console-plugin.certificateSecret" . }}
               readOnly: true
               mountPath: /var/cert
             - name: nginx-conf
@@ -41,13 +41,13 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
       volumes:
-        - name: {{ template "openshift-console-plugin.certificateSecret" . }}
+        - name: {{ template "partner-labs-console-plugin.certificateSecret" . }}
           secret:
-            secretName: {{ template "openshift-console-plugin.certificateSecret" . }}
+            secretName: {{ template "partner-labs-console-plugin.certificateSecret" . }}
             defaultMode: 420
         - name: nginx-conf
           configMap:
-            name: {{ template "openshift-console-plugin.name" . }}
+            name: {{ template "partner-labs-console-plugin.name" . }}
             defaultMode: 420
       restartPolicy: Always
       dnsPolicy: ClusterFirst

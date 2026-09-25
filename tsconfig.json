@@ -4,6 +4,7 @@
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "allowJs": true,
+    "skipLibCheck": true,
     "strict": true,
     "noUnusedLocals": true,
     "types": ["jest", "@testing-library/jest-dom", "node"]

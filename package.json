@@ -9,11 +9,14 @@
     "type": "git",
     "url": "git+https://github.com/redhat-openshift-partner-labs/console-plugin.git"
   },
+  "engines": {
+    "node": "^24.0.0"
+  },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && NODE_ENV=production rspack",
-    "build-dev": "yarn clean && rspack",
-    "start": "rspack serve",
+    "build": "yarn clean && NODE_ENV=production webpack --config webpack.config.ts",
+    "build-dev": "yarn clean && webpack --config webpack.config.ts",
+    "start": "webpack serve --config webpack.config.ts",
     "start-console": "./start-console.sh",
     "i18n": "i18next-cli lint && i18next-cli extract",
     "test": "LANG=en_US.UTF-8 jest",
@@ -22,25 +25,24 @@
     "test-e2e-headless": "playwright test"
   },
   "devDependencies": {
-    "@openshift-console/dynamic-plugin-sdk": "4.23-latest",
-    "@openshift-console/dynamic-plugin-sdk-webpack": "4.23-latest",
+    "@openshift-console/dynamic-plugin-sdk": "4.19-latest",
+    "@openshift-console/dynamic-plugin-sdk-webpack": "4.19-latest",
     "@patternfly/quickstarts": "^6.6.0",
     "@patternfly/react-core": "^6.6.1",
     "@patternfly/react-icons": "^6.6.1",
-    "@patternfly/react-table": "^6.6.1",
     "@playwright/test": "~1.60.0",
-    "@rspack/cli": "^2.1.10",
-    "@rspack/core": "^2.1.10",
-    "@rspack/dev-server": "^2.2.0",
     "@swc/core": "^1.15.47",
     "@swc/jest": "^0.2.39",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.2",
+    "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^14.6.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.0.0",
-    "@types/react": "^18.3.28",
+    "@types/node": "^24.0.0",
+    "@types/react": "^17.0.89",
+    "@types/react-router-dom": "^5.3.3",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.4",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
@@ -52,24 +54,29 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-testing-library": "^7.16.2",
     "globals": "^17.9.0",
-    "i18next": "^25.8.18",
-    "i18next-cli": "1.50.3",
+    "i18next": "^23.11.5",
+    "i18next-cli": "1.30.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-junit": "^17.0.0",
+    "marked": "^15.0.6",
     "prettier": "^3.9.6",
-    "prettier-stylelint": "^0.4.2",
-    "react": "^18.3.1",
-    "react-compiler-runtime": "^1.0.0",
-    "react-dom": "^18.3.1",
-    "react-i18next": "~16.5.8",
-    "react-router": "~7.18.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-i18next": "^11.18.6",
+    "react-router": "~5.3.4",
+    "react-router-dom": "~5.3.4",
+    "react-router-dom-v5-compat": "~6.30.6",
+    "style-loader": "^4.0.0",
     "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0",
-    "ts-checker-rspack-plugin": "^1.6.1",
+    "swc-loader": "^0.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",
+    "webpack": "^5.100.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3",
     "yaml": "^2.9.1",
     "yaml-loader": "^0.9.0"
   },
@@ -80,11 +87,15 @@
     "description": "OpenShift Console plugin for OpenShift Partner Labs",
     "exposedModules": {
       "DemosPage": "./components/DemosPage",
-      "CookbookPage": "./components/CookbookPage"
+      "ExamplePage": "./components/ExamplePage",
+      "CookbookPage": "./cookbook/CookbookPage"
     },
     "dependencies": {
-      "@console/pluginAPI": "*"
+      "@console/pluginAPI": ">=4.19.0-0"
     }
+  },
+  "resolutions": {
+    "@types/react": "17.0.93"
   },
   "packageManager": "yarn@4.18.0"
 }

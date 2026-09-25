@@ -1,6 +1,12 @@
 **/node_modules
 **/dist
+**/docs
 **/.DS_Store
+.idea/
+.codex/
+.claude/
+.serena/
+.mcp.json
 .devcontainer/dev.env
 integration-tests/.auth
 integration-tests/results

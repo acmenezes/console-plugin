@@ -1,4 +1,6 @@
-FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS build
+# Build browser assets on the builder's native CPU; only the nginx image needs the target CPU.
+ARG BUILDPLATFORM
+FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi9/nodejs-24:latest AS build
 USER root
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1

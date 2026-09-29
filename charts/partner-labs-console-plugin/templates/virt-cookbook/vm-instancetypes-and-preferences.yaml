@@ -1,8 +1,8 @@
-{{- if .Values.plugin.quickStarts.instancetypePreference.enabled }}
+{{- if .Values.plugin.quickStarts.vm-instancetypes-and-preferences.enabled }}
 apiVersion: console.openshift.io/v1
 kind: ConsoleQuickStart
 metadata:
-  name: partner-labs-instancetype-preference
+  name: vm-instancetypes-and-preferences
   labels:
     {{- include "partner-labs-console-plugin.labels" . | nindent 4 }}
 spec:

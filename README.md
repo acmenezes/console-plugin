@@ -5,7 +5,7 @@ This dynamic plugin demonstrates three ways a card can act in the OpenShift Cons
 | Interaction         | Cards                                                                         | Implementation                                                                                                            |
 | ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Open a plugin page  | Custom Page, How-to Use Demos, Creating Virtual Machines, Custom VM Templates | `console-extensions.json`, `src/components/ExamplePage.tsx`, `src/cookbook/`                                              |
-| Start a walkthrough | VM Instancetypes & Preferences                                                | `src/components/DemosPage.tsx`, `charts/partner-labs-console-plugin/templates/virt-cookbook/quickstart-instancetype.yaml` |
+| Start a walkthrough | VM Instancetypes & Preferences                                                | `src/components/DemosPage.tsx`, `charts/partner-labs-console-plugin/templates/virt-cookbook/vm-instancetypes-and-preferences.yaml` |
 | Trigger a pipeline  | Tekton Pipeline                                                               | `src/components/DemosPage.tsx`                                                                                            |
 
 `src/cards.yaml` is the sparse card registry. Each long cookbook body lives in
@@ -23,6 +23,22 @@ the page itself reads resources through the Console SDK and does not execute a s
 The route `$codeRef` values in `console-extensions.json` must match
 `consolePlugin.exposedModules` in `package.json`. Run `yarn i18n` after changing
 translated strings.
+
+## Create a plugin page
+
+```mermaid
+flowchart LR
+    nav["Optional: navigation link<br/>console-extensions.json"] --> url["Page URL"]
+    card["Optional: page card<br/>src/cards.yaml"] --> url
+    url --> route["Route: path and $codeRef<br/>console-extensions.json"]
+    route --> module["Exposed module with matching name<br/>package.json consolePlugin.exposedModules"]
+    module --> page["React page component<br/>src/components/MyPage.tsx"]
+```
+
+Create the component, expose it under a name such as `MyPage`, and use that name
+as the route's `$codeRef`. The route's `path` is the URL to open. To make the page
+discoverable, add a navigation link or a `kind: page` card whose URL matches that
+path. `ExamplePage` at `/partner-labs-example` is the existing example.
 
 This repository can be used as a template. Use GitHub's **Use this template**
 action, then update plugin metadata, the i18n namespace, route paths, CSS

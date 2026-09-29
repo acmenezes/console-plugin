@@ -23,7 +23,7 @@
   kind: quickstart
   title: VM Instancetypes & Preferences
   body: Start a guided walkthrough defined by a ConsoleQuickStart resource.
-  quickStartId: partner-labs-instancetype-preference
+  quickStartId: vm-instancetypes-and-preferences
 
 - id: pipeline
   kind: pipeline

@@ -35,7 +35,7 @@ plugin:
     annotations: {}
     name: ""
   quickStarts:
-    instancetypePreference:
+    vm-instancetypes-and-preferences:
       enabled: true
   jobs:
     patchConsoles:

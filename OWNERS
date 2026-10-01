@@ -1,10 +1,6 @@
 approvers:
-  - christianvogt
-  - florkbr
-  - jhadvig
-  - logonoff
-  - rhamilto
-  - spadgett
-  - TheRealJon
-  - vojtechszocs
-component: Management Console
+- mrhillsman
+- acmenezes
+reviewers:
+- mrhillsman
+- acmenezes

@@ -8,6 +8,22 @@ jest.mock('@openshift-console/dynamic-plugin-sdk', () => {
   return {
     DocumentTitle: ({ children }: { children: React.ReactNode }) => <title>{children}</title>,
     ListPageHeader: ({ title }: { title: string }) => <h1>{title}</h1>,
+    NamespaceBar: ({ isDisabled }: { isDisabled?: boolean }) => (
+      <select
+        aria-label="Project"
+        value={mockNamespace}
+        disabled={isDisabled}
+        onChange={(event) => {
+          mockNamespace = event.target.value;
+        }}
+      >
+        {['#ALL_NS#', 'demo', 'other'].map((project) => (
+          <option key={project} value={project}>
+            {project}
+          </option>
+        ))}
+      </select>
+    ),
     useActiveNamespace: () => [mockNamespace],
     useK8sWatchResources: jest.fn(() => ({})),
     useK8sModel: () => [undefined, false],
@@ -31,7 +47,7 @@ const sdk = jest.requireMock<{
         ns: string;
         data: {
           kind: string;
-          metadata: { name: string; labels: Record<string, string> };
+          metadata: { name: string; namespace: string; labels: Record<string, string> };
           spec: { pipelineSpec: unknown; taskRunTemplate: { serviceAccountName: string } };
         };
       },
@@ -55,12 +71,14 @@ describe('DemosPage', () => {
         <DemosPage />
       </MemoryRouter>,
     );
-    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(6);
+    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(8);
     expect(screen.getByText('Custom Page')).toBeInTheDocument();
     expect(screen.getByText('How-to Use Demos')).toBeInTheDocument();
     expect(screen.getByText('Creating Virtual Machines')).toBeInTheDocument();
     expect(screen.getByText('Custom VM Templates')).toBeInTheDocument();
     expect(screen.getByText('VM Instancetypes & Preferences')).toBeInTheDocument();
+    expect(screen.getByText('Create a VM from the web console')).toBeInTheDocument();
+    expect(screen.getByText('Create custom VM templates')).toBeInTheDocument();
     expect(screen.getByText('Tekton Pipeline')).toBeInTheDocument();
   });
 
@@ -77,14 +95,18 @@ describe('DemosPage', () => {
     expect(await screen.findByTestId('example-route')).toBeInTheDocument();
   });
 
-  it('starts the ConsoleQuickStart', () => {
+  it.each([
+    ['quickstart', 'vm-instancetypes-and-preferences'],
+    ['create-vm-web-console', 'create-vm-web-console'],
+    ['vm-templates-quickstart', 'vm-templates'],
+  ])('starts the ConsoleQuickStart from the %s card', (cardId, quickStartId) => {
     render(
       <MemoryRouter>
         <DemosPage />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByTestId('card-action-quickstart'));
-    expect(sdk.setActiveQuickStart).toHaveBeenCalledWith('partner-labs-instancetype-preference');
+    fireEvent.click(screen.getByTestId(`card-action-${cardId}`));
+    expect(sdk.setActiveQuickStart).toHaveBeenCalledWith(quickStartId);
   });
 
   it('creates an inline Tekton PipelineRun', async () => {
@@ -160,12 +182,14 @@ describe('DemosPage', () => {
     );
     const search = screen.getByRole('textbox', { name: 'Search demos' });
     fireEvent.change(search, { target: { value: 'guided walkthrough' } });
-    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(1);
+    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(3);
     expect(screen.getByText('VM Instancetypes & Preferences')).toBeInTheDocument();
+    expect(screen.getByText('Create a VM from the web console')).toBeInTheDocument();
+    expect(screen.getByText('Create custom VM templates')).toBeInTheDocument();
     fireEvent.change(search, { target: { value: 'no matching demo' } });
     expect(screen.getByText('No demos match your filters')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('clear-filters'));
-    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(6);
+    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(8);
   });
 
   it('filters by kind and displays each action in the footer', () => {
@@ -190,6 +214,7 @@ describe('DemosPage', () => {
     );
     fireEvent.click(screen.getByTestId('card-action-pipeline'));
     expect(screen.getByTestId('card-action-pipeline')).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Project' })).toBeDisabled();
     expect(screen.getByText('Creating…')).toBeInTheDocument();
   });
 
@@ -227,8 +252,38 @@ describe('DemosPage', () => {
       </MemoryRouter>,
     );
     expect(screen.getByTestId('card-action-pipeline')).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: 'Project' })).toBeEnabled();
     expect(screen.getByText('Select a project to run')).toBeInTheDocument();
     expect(sdk.k8sGet).not.toHaveBeenCalled();
+  });
+
+  it('runs the pipeline in the project selected on the demos page', async () => {
+    mockNamespace = '#ALL_NS#';
+    const page = (
+      <MemoryRouter>
+        <DemosPage />
+      </MemoryRouter>
+    );
+    const { rerender } = render(page);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Project' }), {
+      target: { value: 'other' },
+    });
+    // Console updates subscribers to useActiveNamespace after a project change.
+    rerender(
+      <MemoryRouter>
+        <DemosPage />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId('card-action-pipeline')).toBeEnabled();
+    fireEvent.click(screen.getByTestId('card-action-pipeline'));
+    await screen.findByTestId('toast-pipeline');
+    expect(sdk.k8sGet).toHaveBeenCalledWith(
+      expect.objectContaining({ ns: 'other', name: 'partner-labs-demo' }),
+    );
+    const request = sdk.k8sCreate.mock.calls[0][0];
+    expect(request.ns).toBe('other');
+    expect(request.data.metadata.namespace).toBe('other');
+    expect(screen.getByRole('combobox', { name: 'Project' })).toBeEnabled();
   });
 
   it('shows View run when the fixed run exists', async () => {

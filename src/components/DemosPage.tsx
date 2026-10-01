@@ -3,6 +3,7 @@ import {
   k8sCreate,
   k8sGet,
   ListPageHeader,
+  NamespaceBar,
   useActiveNamespace,
   useQuickStartContext,
 } from '@openshift-console/dynamic-plugin-sdk';
@@ -172,6 +173,7 @@ const DemosPageContent: FC = () => {
   return (
     <>
       <DocumentTitle>{t('Partner Labs Demos')}</DocumentTitle>
+      <NamespaceBar isDisabled={creating} />
       <ListPageHeader title={t('Partner Labs Demos')} />
       <PageSection>
         <Tabs

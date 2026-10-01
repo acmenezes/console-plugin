@@ -124,6 +124,6 @@ describe('ExamplePage', () => {
     fireEvent.click(screen.getByTestId('show-pod-links'));
     expect(mockSetUserSetting).toHaveBeenCalledWith(false);
     fireEvent.click(screen.getByTestId('open-example-quickstart'));
-    expect(mockSetActiveQuickStart).toHaveBeenCalledWith('partner-labs-instancetype-preference');
+    expect(mockSetActiveQuickStart).toHaveBeenCalledWith('vm-instancetypes-and-preferences');
   });
 });

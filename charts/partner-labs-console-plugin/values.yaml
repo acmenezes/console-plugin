@@ -35,6 +35,10 @@ plugin:
     annotations: {}
     name: ""
   quickStarts:
+    vm-templates:
+      enabled: true
+    create-vm-web-console:
+      enabled: true
     vm-instancetypes-and-preferences:
       enabled: true
   jobs:

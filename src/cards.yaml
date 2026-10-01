@@ -25,6 +25,18 @@
   body: Start a guided walkthrough defined by a ConsoleQuickStart resource.
   quickStartId: vm-instancetypes-and-preferences
 
+- id: create-vm-web-console
+  kind: quickstart
+  title: Create a VM from the web console
+  body: Follow a guided walkthrough to create, access, and manage a VM from a template.
+  quickStartId: create-vm-web-console
+
+- id: vm-templates-quickstart
+  kind: quickstart
+  title: Create custom VM templates
+  body: Follow a guided walkthrough to inspect, customize, and test reusable VM templates with the CLI.
+  quickStartId: vm-templates
+
 - id: pipeline
   kind: pipeline
   title: Tekton Pipeline

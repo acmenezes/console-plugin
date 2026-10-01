@@ -1,4 +1,4 @@
-{{- if .Values.plugin.quickStarts.vm-instancetypes-and-preferences.enabled }}
+{{- if (index .Values.plugin.quickStarts "vm-instancetypes-and-preferences").enabled }}
 apiVersion: console.openshift.io/v1
 kind: ConsoleQuickStart
 metadata:

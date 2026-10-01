@@ -98,4 +98,30 @@ test.describe('Console plugin cards', () => {
     await expect(page.getByText('Console SDK examples')).toBeVisible();
     await expect(page.getByTestId('copy-example-command')).toBeVisible();
   });
+
+  test('shows the project selector on the demos page', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await expect(page.locator('[data-test-id="namespace-bar-dropdown"]')).toBeVisible();
+    await expect(page.getByTestId('card-pipeline')).toBeVisible();
+  });
+
+  test('opens the VM creation quick start', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await page.getByTestId('card-action-create-vm-web-console').click();
+    await expect(
+      page.getByRole('heading', { name: 'Create a VM from the web console', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Open VirtualMachines and select a project', { exact: true }),
+    ).toBeVisible();
+  });
+
+  test('opens the custom VM templates quick start', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await page.getByTestId('card-action-vm-templates-quickstart').click();
+    await expect(
+      page.getByRole('heading', { name: 'Create custom VM templates', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText('Inspect a supplied VM template', { exact: true })).toBeVisible();
+  });
 });

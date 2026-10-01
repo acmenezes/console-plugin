@@ -222,7 +222,6 @@ const ActivityTab: FC<{ namespace: string }> = ({ namespace }) => {
 
   return (
     <div className="partner-labs-console-plugin__activity" data-test="activity-tab">
-      <Label>{t('Namespace: {{ns}}', { ns: namespace })}</Label>
       {/* eslint-disable-next-line @typescript-eslint/no-deprecated */}
       <ListPageFilter
         data={staticData}

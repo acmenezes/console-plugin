@@ -27,7 +27,7 @@ describe('CookbookPage', () => {
   });
   it.each([
     ['create-vm', 'Creating Virtual Machines'],
-    ['vm-templates', 'Custom VM Templates'],
+    ['vm-templates-cookbook', 'Custom VM Templates'],
   ])('renders the %s cookbook', (id, title) => {
     renderCookbook(id);
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();

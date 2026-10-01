@@ -118,7 +118,7 @@ test.describe('Console plugin cards', () => {
 
   test('opens the custom VM templates quick start', async ({ page }) => {
     await page.goto('/partner-labs-demos');
-    await page.getByTestId('card-action-vm-templates-quickstart').click();
+    await page.getByTestId('card-action-vm-templates').click();
     await expect(
       page.getByRole('heading', { name: 'Create custom VM templates', exact: true }),
     ).toBeVisible();

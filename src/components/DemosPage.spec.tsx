@@ -96,9 +96,9 @@ describe('DemosPage', () => {
   });
 
   it.each([
-    ['quickstart', 'vm-instancetypes-and-preferences'],
+    ['vm-instancetypes-and-preferences', 'vm-instancetypes-and-preferences'],
     ['create-vm-web-console', 'create-vm-web-console'],
-    ['vm-templates-quickstart', 'vm-templates'],
+    ['vm-templates', 'vm-templates'],
   ])('starts the ConsoleQuickStart from the %s card', (cardId, quickStartId) => {
     render(
       <MemoryRouter>

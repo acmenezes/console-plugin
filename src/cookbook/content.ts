@@ -18,5 +18,5 @@ function loadSections(data: unknown, id: string): CookbookSection[] {
 export const cookbookContent: Record<string, CookbookSection[]> = {
   'how-to-use-demos': loadSections(howToUseDemosData, 'how-to-use-demos'),
   'create-vm': loadSections(createVmData, 'create-vm'),
-  'vm-templates': loadSections(vmTemplatesData, 'vm-templates'),
+  'vm-templates-cookbook': loadSections(vmTemplatesData, 'vm-templates-cookbook'),
 };

@@ -45,6 +45,8 @@ plugin:
       enabled: true
     vm-instancetypes-and-preferences:
       enabled: true
+    vm-lifecycle-states:
+      enabled: true
   jobs:
     patchConsoles:
       enabled: true

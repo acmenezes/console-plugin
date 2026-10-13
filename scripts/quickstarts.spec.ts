@@ -71,6 +71,75 @@ describe('QuickStart structure', () => {
   });
 
   it.each([
+    [],
+    [{}],
+    [
+      {
+        group: '',
+        namespace: '',
+        subresource: '',
+        name: '',
+        version: '*',
+        verb: '*',
+        resource: '*',
+      },
+    ],
+    [
+      { group: 'kubevirt.io', resource: 'virtualmachines', verb: 'create' },
+      { group: '', resource: 'pods', verb: 'get', namespace: 'demo', name: 'example' },
+    ],
+    [{ fieldSelector: {}, labelSelector: { rawSelector: '', requirements: [] } }],
+    [
+      {
+        fieldSelector: {
+          requirements: [{ key: 'metadata.name', operator: 'In', values: ['demo'] }],
+        },
+      },
+    ],
+    [{ labelSelector: { requirements: [{ key: 'app', operator: 'Exists' }] } }],
+  ])('accepts access review resources %p', (...entries) => {
+    const value = resource();
+    replaceField(value, 'spec.accessReviewResources', entries);
+    expect(validateResource(value, 'alpha.yaml', 'alpha')).toEqual(value);
+  });
+
+  it.each<[string, unknown]>([
+    ['', 'pods'],
+    ['', {}],
+    ['', null],
+    ['[0]', ['pods']],
+    ['[0]', [null]],
+    ['[0]', [[]]],
+    ...['group', 'version', 'resource', 'verb', 'namespace', 'subresource', 'name'].map<
+      [string, unknown]
+    >((field) => [`[0].${field}`, [{ [field]: 1 }]]),
+    ['[1].verb', [{ verb: 'get' }, { verb: false }]],
+    ...['fieldSelector', 'labelSelector'].flatMap<[string, unknown]>((field) => [
+      [`[0].${field}`, [{ [field]: 'app=demo' }]],
+      [`[0].${field}`, [{ [field]: null }]],
+      [`[0].${field}.rawSelector`, [{ [field]: { rawSelector: false } }]],
+      [`[0].${field}.requirements`, [{ [field]: { requirements: {} } }]],
+      [`[0].${field}.requirements[0]`, [{ [field]: { requirements: [null] } }]],
+      [`[0].${field}.requirements[0].key`, [{ [field]: { requirements: [{ operator: 'In' }] } }]],
+      [`[0].${field}.requirements[0].operator`, [{ [field]: { requirements: [{ key: 'app' }] } }]],
+      [
+        `[0].${field}.requirements[0].values`,
+        [{ [field]: { requirements: [{ key: 'app', operator: 'In', values: 'demo' }] } }],
+      ],
+      [
+        `[0].${field}.requirements[0].values[0]`,
+        [{ [field]: { requirements: [{ key: 'app', operator: 'In', values: [1] }] } }],
+      ],
+    ]),
+  ])('rejects invalid access review resources at %s (%p)', (suffix, entries) => {
+    const value = resource();
+    replaceField(value, 'spec.accessReviewResources', entries);
+    expect(() => validateResource(value, 'alpha.yaml', 'alpha')).toThrow(
+      `alpha.yaml.spec.accessReviewResources${suffix}`,
+    );
+  });
+
+  it.each([
     ['apiVersion', 'console.openshift.io/v2'],
     ['kind', 'ConfigMap'],
     ['metadata.name', 'other'],

@@ -69,6 +69,52 @@ function validateTask(value: unknown, path: string): void {
   }
 }
 
+function optionalStrings(value: Mapping, path: string, fields: string[]): void {
+  for (const field of fields) {
+    if (value[field] !== undefined)
+      check(typeof value[field] === 'string', `${path}.${field}`, 'expected a string');
+  }
+}
+
+function validateAccessReviewSelector(value: unknown, path: string): void {
+  const selector = mapping(value, path);
+  optionalStrings(selector, path, ['rawSelector']);
+  if (selector.requirements === undefined) return;
+  list(selector.requirements, `${path}.requirements`).forEach((item, index) => {
+    const itemPath = `${path}.requirements[${String(index)}]`;
+    const requirement = mapping(item, itemPath);
+    for (const field of ['key', 'operator'])
+      check(typeof requirement[field] === 'string', `${itemPath}.${field}`, 'expected a string');
+    if (requirement.values !== undefined) {
+      list(requirement.values, `${itemPath}.values`).forEach((value, index) => {
+        check(
+          typeof value === 'string',
+          `${itemPath}.values[${String(index)}]`,
+          'expected a string',
+        );
+      });
+    }
+  });
+}
+
+function validateAccessReviewResource(value: unknown, path: string): void {
+  const attributes = mapping(value, path);
+  // ResourceAttributes fields are optional; empty strings have API-defined meanings.
+  optionalStrings(attributes, path, [
+    'group',
+    'version',
+    'resource',
+    'verb',
+    'namespace',
+    'subresource',
+    'name',
+  ]);
+  for (const field of ['fieldSelector', 'labelSelector']) {
+    if (attributes[field] !== undefined)
+      validateAccessReviewSelector(attributes[field], `${path}.${field}`);
+  }
+}
+
 // Structural checks follow the OpenShift 4.19 ConsoleQuickStart API, not Markdown execution.
 // https://github.com/openshift/api/blob/release-4.19/console/v1/types_console_quick_start.go
 export function validateResource(value: unknown, path: string, id: string): Mapping {
@@ -115,6 +161,13 @@ export function validateResource(value: unknown, path: string, id: string): Mapp
   for (const field of ['icon', 'conclusion']) {
     if (spec[field] !== undefined)
       check(typeof spec[field] === 'string', `${path}.spec.${field}`, 'expected a string');
+  }
+  if (spec.accessReviewResources !== undefined) {
+    list(spec.accessReviewResources, `${path}.spec.accessReviewResources`).forEach(
+      (item, index) => {
+        validateAccessReviewResource(item, `${path}.spec.accessReviewResources[${String(index)}]`);
+      },
+    );
   }
   return resource;
 }

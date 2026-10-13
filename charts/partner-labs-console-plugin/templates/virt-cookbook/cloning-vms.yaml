@@ -1,8 +1,8 @@
-{{- if .Values.plugin.quickStarts.cloningVMs.enabled }}
+{{- if (index .Values.plugin.quickStarts "cloning-vms").enabled }}
 apiVersion: console.openshift.io/v1
 kind: ConsoleQuickStart
 metadata:
-  name: partner-labs-cloning-vms
+  name: cloning-vms
   labels:
     {{- include "partner-labs-console-plugin.labels" . | nindent 4 }}
 spec:

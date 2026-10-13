@@ -47,7 +47,7 @@ plugin:
       enabled: true
     vm-lifecycle-states:
       enabled: true
-    cloningVMs:
+    cloning-vms:
       enabled: true
   jobs:
     patchConsoles:

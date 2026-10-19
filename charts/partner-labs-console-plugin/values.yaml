@@ -35,6 +35,8 @@ plugin:
     annotations: {}
     name: ""
   quickStarts:
+    vm-ingress-routes:
+      enabled: true
     install-configure-ocpv-operator:
       enabled: true
     vm-templates:

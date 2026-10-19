@@ -107,6 +107,20 @@ Current config has `strict: true` and enforces:
 
 ## Common Development Tasks
 
+### Adding or Updating a ConsoleQuickStart
+
+Follow the [repository wiring and validation guide](how-to-create-consolequickstart-demo.md)
+and review the [OpenShift 4.22 Quick Start authoring guide](https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html/web_console/creating-quick-start-tutorials)
+for every new or changed Quick Start.
+
+Give each task a clear action, an observable review question, and useful failure
+help. Consider command copy/run controls, UI highlights, prerequisites, and
+follow-on Quick Starts when they help the learner.
+
+Run the repository validation checks and verify the walkthrough in a real
+Console on the target OpenShift release. Run controls require Web Terminal;
+do not assume the localhost Console supports command execution.
+
 ### Adding a New Page
 1. Create component in `src/components/MyPage.tsx`
 2. Add to `package.json` `exposedModules`: `"MyPage": "./components/MyPage"`

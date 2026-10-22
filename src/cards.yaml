@@ -43,6 +43,12 @@
   body: Follow a guided walkthrough to inspect, customize, and test reusable VM templates with the CLI.
   quickStartId: vm-templates
 
+- id: vm-ingress-routes
+  kind: quickstart
+  title: Expose a VM with an HTTPS Route
+  body: Run Nginx in a Fedora VM, expose it through a Service and an HTTPS Route, and clean up the demo resources.
+  quickStartId: vm-ingress-routes
+
 - id: pipeline
   kind: pipeline
   title: Tekton Pipeline

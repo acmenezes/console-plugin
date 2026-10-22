@@ -48,6 +48,12 @@
   title: Expose a VM with an HTTPS Route
   body: Run Nginx in a Fedora VM, expose it through a Service and an HTTPS Route, and clean up the demo resources.
   quickStartId: vm-ingress-routes
+  
+- id: vm-lifecycle-states
+  kind: quickstart
+  title: Understanding VM lifecycle states
+  body: Manage virtual machine lifecycle by starting, monitoring, pausing, and stopping VMs.
+  quickStartId: vm-lifecycle-states
 
 - id: pipeline
   kind: pipeline

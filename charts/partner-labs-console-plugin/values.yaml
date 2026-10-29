@@ -55,6 +55,8 @@ plugin:
       enabled: true
     cloning-vms:
       enabled: true
+    cloud-init-fundamentals:
+      enabled: true
   jobs:
     patchConsoles:
       enabled: true

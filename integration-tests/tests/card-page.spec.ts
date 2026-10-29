@@ -182,4 +182,13 @@ test.describe('Console plugin cards', () => {
     ).toBeVisible();
     await expect(page.getByText('Inspect a supplied VM template', { exact: true })).toBeVisible();
   });
+
+  test('opens the Cloud-init Fundamentals quick start', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await page.getByTestId('card-action-cloud-init-fundamentals').click();
+    await expect(
+      page.getByRole('heading', { name: 'Cloud-init Fundamentals', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText('Check the Fedora boot source')).toBeVisible();
+  });
 });

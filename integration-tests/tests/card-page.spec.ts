@@ -135,7 +135,8 @@ test.describe('Console plugin cards', () => {
       page.getByRole('heading', { name: 'Expose a VM with an HTTPS Route', exact: true }),
     ).toBeVisible();
     await expect(page.getByText('Create a dedicated test project', { exact: true })).toBeVisible();
-    
+  });
+
   test('opens the VM lifecycle states quick start', async ({ page }) => {
     await page.goto('/partner-labs-demos');
     await page.getByTestId('card-action-vm-lifecycle-states').click();

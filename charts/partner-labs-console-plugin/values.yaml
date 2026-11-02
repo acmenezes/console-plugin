@@ -39,6 +39,8 @@ plugin:
       enabled: true
     install-configure-ocpv-operator:
       enabled: true
+    install-lvm-storage-operator:
+      enabled: true
     vm-templates:
       enabled: true
     create-vm-web-console:

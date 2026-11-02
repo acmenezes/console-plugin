@@ -56,6 +56,7 @@ const sdk = jest.requireMock<{
   >;
   setActiveQuickStart: jest.Mock;
   k8sGet: jest.Mock;
+  useK8sWatchResources: jest.Mock;
 }>('@openshift-console/dynamic-plugin-sdk');
 
 beforeEach(() => {
@@ -85,6 +86,21 @@ describe('DemosPage', () => {
     expect(screen.getByText('Create custom VM templates')).toBeInTheDocument();
     expect(screen.getByText('Understanding VM lifecycle states')).toBeInTheDocument();
     expect(screen.getByText('Tekton Pipeline')).toBeInTheDocument();
+  });
+
+  it('mounts the Activity tab and its watches only when selected', () => {
+    render(
+      <MemoryRouter>
+        <DemosPage />
+      </MemoryRouter>,
+    );
+    expect(sdk.useK8sWatchResources).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('tab-activity'));
+    expect(sdk.useK8sWatchResources).toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('tab-catalog'));
+    const callsAfterLeavingActivity = sdk.useK8sWatchResources.mock.calls.length;
+    fireEvent.click(screen.getByTestId('tab-activity'));
+    expect(sdk.useK8sWatchResources.mock.calls.length).toBeGreaterThan(callsAfterLeavingActivity);
   });
 
   it('opens the page route', async () => {

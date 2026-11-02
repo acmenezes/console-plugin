@@ -67,6 +67,12 @@
   body: Start a guided walkthrough for cloning virtual machines in OpenShift Virtualization.
   quickStartId: cloning-vms
 
+- id: static-ip-configuration
+  kind: quickstart
+  title: "VM Cookbook: Static IP Configuration"
+  body: Configure static secondary addresses for two Fedora VMs on an isolated OVN network and test connectivity.
+  quickStartId: static-ip-configuration
+
 - id: pipeline
   kind: pipeline
   title: Tekton Pipeline

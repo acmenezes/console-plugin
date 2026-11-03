@@ -67,6 +67,11 @@
   body: Start a guided walkthrough for cloning virtual machines in OpenShift Virtualization.
   quickStartId: cloning-vms
 
+- id: network-policies-vms
+  kind: quickstart
+  title: "VM Cookbook: Network Policies for VMs"
+  body: Deny incoming traffic to a VM, then allow HTTP from a labeled client using NetworkPolicy.
+  quickStartId: network-policies-vms
 - id: static-ip-configuration
   kind: quickstart
   title: "VM Cookbook: Static IP Configuration"

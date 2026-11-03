@@ -146,6 +146,15 @@ test.describe('Console plugin cards', () => {
     await expect(page.getByText('Understand VM and VMI resources', { exact: true })).toBeVisible();
   });
 
+  test('opens the VM network policies quick start', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await page.getByTestId('card-action-network-policies-vms').click();
+    await expect(
+      page.getByRole('heading', { name: 'VM Cookbook: Network Policies for VMs', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Create the demo project and clients', { exact: true }),
+    ).toBeVisible();
   test('opens the static IP configuration quick start', async ({ page }) => {
     await page.goto('/partner-labs-demos');
     await page.getByTestId('card-action-static-ip-configuration').click();

@@ -35,6 +35,8 @@ plugin:
     annotations: {}
     name: ""
   quickStarts:
+    network-policies-vms:
+      enabled: true
     vm-ingress-routes:
       enabled: true
     static-ip-configuration:

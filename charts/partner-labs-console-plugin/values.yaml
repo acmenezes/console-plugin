@@ -39,7 +39,11 @@ plugin:
       enabled: true
     vm-ingress-routes:
       enabled: true
+    static-ip-configuration:
+      enabled: true
     install-configure-ocpv-operator:
+      enabled: true
+    install-lvm-storage-operator:
       enabled: true
     vm-templates:
       enabled: true

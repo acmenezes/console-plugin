@@ -31,6 +31,12 @@
   body: Install the OpenShift Virtualization Operator and verify its deployment.
   quickStartId: install-configure-ocpv-operator
 
+- id: install-lvm-storage-operator
+  kind: quickstart
+  title: Install the LVM Storage Operator
+  body: Install and configure LVM storage on a cluster with a spare local disk.
+  quickStartId: install-lvm-storage-operator
+
 - id: create-vm-web-console
   kind: quickstart
   title: Create a VM from the web console
@@ -66,6 +72,11 @@
   title: "VM Cookbook: Network Policies for VMs"
   body: Deny incoming traffic to a VM, then allow HTTP from a labeled client using NetworkPolicy.
   quickStartId: network-policies-vms
+- id: static-ip-configuration
+  kind: quickstart
+  title: "VM Cookbook: Static IP Configuration"
+  body: Configure static secondary addresses for two Fedora VMs on an isolated OVN network and test connectivity.
+  quickStartId: static-ip-configuration
 
 - id: pipeline
   kind: pipeline

@@ -25,6 +25,12 @@
   body: Start a guided walkthrough defined by a ConsoleQuickStart resource.
   quickStartId: vm-instancetypes-and-preferences
 
+- id: virtctl-basics
+  kind: quickstart
+  title: Using virtctl for VM management
+  body: Install virtctl and use it to manage, access, and troubleshoot virtual machines.
+  quickStartId: virtctl-basics
+
 - id: install-configure-ocpv-operator
   kind: quickstart
   title: Install and configure OpenShift Virtualization

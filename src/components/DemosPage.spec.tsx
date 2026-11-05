@@ -79,6 +79,7 @@ describe('DemosPage', () => {
     expect(screen.getByText('Creating Virtual Machines')).toBeInTheDocument();
     expect(screen.getByText('Custom VM Templates')).toBeInTheDocument();
     expect(screen.getByText('Cloning Virtual Machines')).toBeInTheDocument();
+    expect(screen.getByText('Cloud-init Fundamentals')).toBeInTheDocument();
     expect(screen.getByText('VM Instancetypes & Preferences')).toBeInTheDocument();
     expect(screen.getByText('Install and configure OpenShift Virtualization')).toBeInTheDocument();
     expect(screen.getByText('Install the LVM Storage Operator')).toBeInTheDocument();
@@ -202,11 +203,12 @@ describe('DemosPage', () => {
     );
     const search = screen.getByRole('textbox', { name: 'Search demos' });
     fireEvent.change(search, { target: { value: 'guided walkthrough' } });
-    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(4);
+    expect(screen.getAllByTestId(/^card-(?!action)/)).toHaveLength(5);
     expect(screen.getByText('VM Instancetypes & Preferences')).toBeInTheDocument();
     expect(screen.getByText('Create a VM from the web console')).toBeInTheDocument();
     expect(screen.getByText('Create custom VM templates')).toBeInTheDocument();
     expect(screen.getByText('Cloning Virtual Machines')).toBeInTheDocument();
+    expect(screen.getByText('Cloud-init Fundamentals')).toBeInTheDocument();
     fireEvent.change(search, { target: { value: 'no matching demo' } });
     expect(screen.getByText('No demos match your filters')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('clear-filters'));

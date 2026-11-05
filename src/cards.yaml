@@ -54,7 +54,7 @@
   title: Expose a VM with an HTTPS Route
   body: Run Nginx in a Fedora VM, expose it through a Service and an HTTPS Route, and clean up the demo resources.
   quickStartId: vm-ingress-routes
-  
+
 - id: vm-lifecycle-states
   kind: quickstart
   title: Understanding VM lifecycle states
@@ -77,6 +77,12 @@
   title: "VM Cookbook: Static IP Configuration"
   body: Configure static secondary addresses for two Fedora VMs on an isolated OVN network and test connectivity.
   quickStartId: static-ip-configuration
+
+- id: cloud-init-fundamentals
+  kind: quickstart
+  title: Cloud-init Fundamentals
+  body: Follow a guided walkthrough to deliver first-boot configuration to a Fedora virtual machine with KubeVirt cloud-init NoCloud.
+  quickStartId: cloud-init-fundamentals
 
 - id: pipeline
   kind: pipeline

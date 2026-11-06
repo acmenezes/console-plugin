@@ -37,6 +37,8 @@ plugin:
   quickStarts:
     network-policies-vms:
       enabled: true
+    virtctl-basics:
+      enabled: true
     vm-ingress-routes:
       enabled: true
     static-ip-configuration:

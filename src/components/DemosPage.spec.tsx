@@ -81,6 +81,7 @@ describe('DemosPage', () => {
     expect(screen.getByText('Cloning Virtual Machines')).toBeInTheDocument();
     expect(screen.getByText('Cloud-init Fundamentals')).toBeInTheDocument();
     expect(screen.getByText('VM Instancetypes & Preferences')).toBeInTheDocument();
+    expect(screen.getByText('Using virtctl for VM management')).toBeInTheDocument();
     expect(screen.getByText('Install and configure OpenShift Virtualization')).toBeInTheDocument();
     expect(screen.getByText('Install the LVM Storage Operator')).toBeInTheDocument();
     expect(screen.getByText('Create a VM from the web console')).toBeInTheDocument();

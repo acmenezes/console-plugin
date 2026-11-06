@@ -178,6 +178,15 @@ test.describe('Console plugin cards', () => {
     await expect(page.getByText('Identify a spare disk', { exact: true })).toBeVisible();
   });
 
+  test('opens the virtctl basics quick start', async ({ page }) => {
+    await page.goto('/partner-labs-demos');
+    await page.getByTestId('card-action-virtctl-basics').click();
+    await expect(
+      page.getByRole('heading', { name: 'Using virtctl for VM management', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText('Install virtctl', { exact: true })).toBeVisible();
+  });
+
   test('opens the custom VM templates quick start', async ({ page }) => {
     await page.goto('/partner-labs-demos');
     await page.getByTestId('card-action-vm-templates').click();
